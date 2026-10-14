@@ -1,0 +1,78 @@
+# robots.txt for ocenisaac.com
+# Optimized for search engines and bots
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://ocenisaac.com/sitemap.xml
+
+# ============================================
+# Specific Bot Rules
+# ============================================
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+
+# DuckDuckBot
+User-agent: DuckDuckBot
+Allow: /
+
+# ============================================
+# Block AI scrapers (optional)
+# Uncomment if you don't want AI models training on your content
+# ============================================
+
+# User-agent: GPTBot
+# Disallow: /
+
+# User-agent: ChatGPT-User
+# Disallow: /
+
+# User-agent: Google-Extended
+# Disallow: /
+
+# User-agent: CCBot
+# Disallow: /
+
+# ============================================
+# Block SEO tool crawlers (optional)
+# These drain bandwidth but don't send traffic
+# ============================================
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# ============================================
+# Block sensitive directories
+# ============================================
+
+Disallow: /admin/
+Disallow: /wp-admin/
+Disallow: /cgi-bin/
+Disallow: /tmp/
+Disallow: /logs/
+Disallow: /backup/
+
+# ============================================
+# Allow CSS, JS, and images for rendering
+# ============================================
+
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /favicon/

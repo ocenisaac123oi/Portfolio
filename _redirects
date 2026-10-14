@@ -1,0 +1,10 @@
+# ============================================
+# Cloudflare Pages Redirects
+# https://ocenisaac.com
+# ============================================
+
+# Success page — serves success.html when /success is visited
+/success  /success.html  200
+
+# Trailing slash cleanup for success
+/success/  /success.html  301
