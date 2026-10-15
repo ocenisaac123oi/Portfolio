@@ -1,58 +1,47 @@
-export async function onRequestPost(context) {
-  const { request, env } = context;
+export async function onRequestPost({ request, env }) {
+  const origin = new URL(request.url).origin;
+  const done = () => Response.redirect(`${origin}/success`, 303);
 
   try {
-    const formData = await request.formData();
-    const name = formData.get('name');
-    const email = formData.get('email');
-    const phone = formData.get('phone') || 'Not provided';
-    const message = formData.get('message');
-    const honeypot = formData.get('bot-field');
-
-    // Honeypot — if filled, it's a bot. Silently succeed.
-    if (honeypot) {
-      return Response.redirect(`${new URL(request.url).origin}/success`, 303);
+    // Fail loudly if config is missing
+    for (const key of ['BREVO_API_KEY', 'BREVO_FROM_EMAIL', 'ADMIN_EMAIL']) {
+      if (!env[key]) {
+        console.error(`Missing environment variable: ${key}`);
+        return new Response('Server configuration error', { status: 500 });
+      }
     }
 
-    // Validate required fields
+    const formData = await request.formData();
+    const name = (formData.get('name') || '').toString().trim();
+    const email = (formData.get('email') || '').toString().trim();
+    const phone = (formData.get('phone') || 'Not provided').toString().trim();
+    const message = (formData.get('message') || '').toString().trim();
+
+    // Honeypot: silently succeed for bots
+    if (formData.get('bot-field')) return done();
+
     if (!name || !email || !message) {
       return new Response('Missing required fields', { status: 400 });
     }
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return new Response('Invalid email address', { status: 400 });
     }
+    if (name.length > 100 || message.length > 5000) {
+      return new Response('Input too long', { status: 400 });
+    }
 
-    // ✅ CHANGED: pull emails from env
-    const FROM_EMAIL = env.BREVO_FROM_EMAIL;   // must be a verified Brevo sender
-    const TO_EMAIL   = env.ADMIN_EMAIL;        // where you want to receive messages
-
-    // Send via Brevo
     const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
-        'accept': 'application/json',
+        accept: 'application/json',
         'api-key': env.BREVO_API_KEY,
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        sender: {
-          name: 'Ocen Isaac Website',
-          email: FROM_EMAIL,           // ✅ CHANGED
-        },
-        to: [
-          {
-            email: TO_EMAIL,           // ✅ CHANGED
-            name: 'Ocen Isaac',
-          },
-        ],
-        replyTo: {
-          email: email,
-          name: name,
-        },
-        subject: `New Project Inquiry from ${name}`,
+        sender: { name: 'Ocen Isaac Website', email: env.BREVO_FROM_EMAIL },
+        to: [{ email: env.ADMIN_EMAIL, name: 'Ocen Isaac' }],
+        replyTo: { email, name },
+        subject: `New Project Inquiry from ${name.replace(/[\r\n]/g, ' ')}`,
         htmlContent: `
           <h2>New Contact Form Submission</h2>
           <p><strong>Name:</strong> ${escapeHtml(name)}</p>
@@ -65,22 +54,19 @@ export async function onRequestPost(context) {
     });
 
     if (!brevoResponse.ok) {
-      const errorText = await brevoResponse.text();
-      console.error('Brevo API error:', errorText);
-      return new Response('Email sending failed', { status: 500 });
+      console.error('Brevo error', brevoResponse.status, await brevoResponse.text());
+      return new Response('Email sending failed', { status: 502 });
     }
 
-    return Response.redirect(`${new URL(request.url).origin}/success`, 303);
-
-  } catch (error) {
-    console.error('Contact function error:', error);
+    return done();
+  } catch (err) {
+    console.error('Contact function error:', err);
     return new Response('Internal server error', { status: 500 });
   }
 }
 
 function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
+  return String(str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
