@@ -1,15 +1,12 @@
 :root {
   --primary: #121212;
-  --primary-light: #333333;
   --text-dark: #121212;
   --text-body: #1a1a1a;
   --text-muted: #555555;
-  --text-muted-light: #888888;
   --brand-blue: #023859;
   --brand-blue-hover: #26658c;
   --btn-primary: #023859;
   --btn-primary-hover: #26658c;
-  --accent: #333333;
   --bg-main: #ffffff;
   --bg-off-white: #f8f8f8;
   --bg-gray: #f2f2f2;
@@ -338,8 +335,14 @@ h6 {
 
 .hero-stats {
   margin-bottom: 1.35rem !important;
-  gap: 2rem !important;
+  gap: 1.25rem !important;
   flex-wrap: wrap;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .hero-stat-number {
@@ -355,6 +358,15 @@ h6 {
   color: var(--text-muted);
   font-weight: 500;
   letter-spacing: 0.4px;
+}
+
+.hero-stat-divider {
+  display: block;
+  width: 1px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .hero-image {
@@ -1189,21 +1201,6 @@ h6 {
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.testimonial-photo-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 1px;
-}
-
-.testimonial-photo-fallback span {
-  line-height: 1;
 }
 
 .testimonial-author {
@@ -2275,6 +2272,10 @@ textarea:focus-visible {
 
   .hero-stat-label {
     font-size: 0.62rem;
+  }
+
+  .hero-stat-divider {
+    display: none;
   }
 
   .hero-badge {
