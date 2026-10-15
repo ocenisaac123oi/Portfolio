@@ -25,6 +25,10 @@ export async function onRequestPost(context) {
       return new Response('Invalid email address', { status: 400 });
     }
 
+    // ✅ CHANGED: pull emails from env
+    const FROM_EMAIL = env.BREVO_FROM_EMAIL;   // must be a verified Brevo sender
+    const TO_EMAIL   = env.ADMIN_EMAIL;        // where you want to receive messages
+
     // Send via Brevo
     const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
@@ -36,11 +40,11 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         sender: {
           name: 'Ocen Isaac Website',
-          email: 'ocenisaac256oi@gmail.com',
+          email: FROM_EMAIL,           // ✅ CHANGED
         },
         to: [
           {
-            email: 'ocenisaac256oi@gmail.com',
+            email: TO_EMAIL,           // ✅ CHANGED
             name: 'Ocen Isaac',
           },
         ],
@@ -66,7 +70,6 @@ export async function onRequestPost(context) {
       return new Response('Email sending failed', { status: 500 });
     }
 
-    // Redirect to success page
     return Response.redirect(new URL('/success.html', request.url), 303);
 
   } catch (error) {
@@ -75,7 +78,6 @@ export async function onRequestPost(context) {
   }
 }
 
-// Basic HTML escaping to prevent injection in emails
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
