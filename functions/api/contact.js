@@ -11,7 +11,7 @@ export async function onRequestPost(context) {
 
     // Honeypot — if filled, it's a bot. Silently succeed.
     if (honeypot) {
-      return Response.redirect(new URL('/success.html', request.url), 303);
+      return Response.redirect(`${new URL(request.url).origin}/success`, 303);
     }
 
     // Validate required fields
@@ -70,7 +70,7 @@ export async function onRequestPost(context) {
       return new Response('Email sending failed', { status: 500 });
     }
 
-    return Response.redirect(new URL('/success.html', request.url), 303);
+    return Response.redirect(`${new URL(request.url).origin}/success`, 303);
 
   } catch (error) {
     console.error('Contact function error:', error);
